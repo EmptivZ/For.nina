@@ -225,6 +225,20 @@
             gap: 10px;
             margin-bottom: 10px;
         }
+        /* --- TAMBAHKAN KODE INI DI SINI --- */
+.btn-mode {
+    background: transparent !important; /* Menghapus background tombol */
+    color: #ffb3c6;                     /* Mengubah warna teks */
+    border: 1px solid rgba(255, 77, 109, 0.3); /* Garis tepi tipis samar */
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+}
+.btn-mode.active {
+    background: rgba(255, 77, 109, 0.15) !important; /* Efek pendaran saat aktif */
+    border-color: #ff4d6d;
+    color: #ffffff;
+}
 
         /* --- STUDIO PHOTOBOOTH --- */
         .photobooth-section {
@@ -361,7 +375,7 @@
             background-image: linear-gradient(#f2f2f2 1px, transparent 1px);
             background-size: 100% 24px;
             width: 190px;
-            height: 380px;
+            height: 0;
             left: 15px; top: 10px;
             border-radius: 6px;
             transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
@@ -379,7 +393,7 @@
             z-index: 1;
         }
         .envelope-wrapper.open .letter-paper {
-            height: 330px;
+            height: 500px;
             top: -250px; /* Meluncur ke Atas Keluar dari Kantong */
             width: 300px;
             left: -40px;
@@ -455,7 +469,7 @@
             <p style="font-size: 12px; color: #aaa; margin-bottom: 25px;">You're mine</p>
             
             <div class="canvas-toolbar">
-                <button class="btn-mode active" id="btnTeks1" onclick="ubahBentukPartikel('teks_love')">Teks "I ♡ YOU" </button>
+                <button class="btn-mode active" id="btnTeks1" onclick="ubahBentukPartikel('teks_love')">I ♡ YOU </button>
                 <button class="btn-mode" id="btnHati" onclick="ubahBentukPartikel('hati')">A form of love </button>
             </div>
 
@@ -672,52 +686,56 @@
         }
 
         function rakitPartikel() {
-            particleArray = [];
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.shadowBlur = 0;
+    particleArray = [];
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.shadowBlur = 0;
 
-            if (modeAktif === 'hati') {
-                const totalPoints = 420;
-                for (let i = 0; i < totalPoints; i++) {
-                    let angle = (i / totalPoints) * Math.PI * 2;
-                    let targetX = 16 * Math.pow(Math.sin(angle), 3);
-                    let targetY = 13 * Math.cos(angle) - 5 * Math.cos(2*angle) - 2 * Math.cos(3*angle) - Math.cos(4*angle);
-                    
-                    let scale = Math.min(canvas.width / 40, 9.5);
-                    let finalX = (canvas.width / 2) + (targetX * scale);
-                    let finalY = (canvas.height / 2) - (targetY * scale) + 15;
-                    particleArray.push(new TitikPartikel(finalX, finalY));
-                }
-            } else {
-                ctx.fillStyle = 'white';
-                let fontSize = canvas.width < 450 ? '24px' : '34px';
-                ctx.font = 'bold ' + fontSize + ' sans-serif';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                
-                ctx.fillText("I ♡ YOU NINA", canvas.width / 2, canvas.height / 2);
+    if (modeAktif === 'hati') {
+        const totalPoints = 600; // Jumlah partikel bentuk hati ditambah agar lebih rapat
+        for (let i = 0; i < totalPoints; i++) {
+            let angle = (i / totalPoints) * Math.PI * 2;
+            let targetX = 16 * Math.pow(Math.sin(angle), 3);
+            let targetY = 13 * Math.cos(angle) - 5 * Math.cos(2*angle) - 2 * Math.cos(3*angle) - Math.cos(4*angle);
+            
+            let scale = Math.min(canvas.width / 40, 9.5);
+            let finalX = (canvas.width / 2) + (targetX * scale);
+            let finalY = (canvas.height / 2) - (targetY * scale) + 15;
+            particleArray.push(new TitikPartikel(finalX, finalY));
+        }
+    } else {
+        ctx.fillStyle = 'white';
+        let fontSize = canvas.width < 450 ? '24px' : '34px';
+        ctx.font = 'bold ' + fontSize + ' sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        
+        ctx.fillText("I ♡ YOU NINA", canvas.width / 2, canvas.height / 2);
 
-                const dataGaris = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const dataGaris = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                for (let y = 0; y < dataGaris.height; y += 4) {
-                    for (let x = 0; x < dataGaris.width; x += 4) {
-                        if (dataGaris.data[(y * 4 * dataGaris.width) + (x * 4) + 3] > 128) {
-                            particleArray.push(new TitikPartikel(x, y));
-                        }
-                    }
+        // Kerapatan diubah menjadi += 2 (sebelumnya 3 atau 4) agar partikel padat dan tulisan sangat halus
+        for (let y = 0; y < dataGaris.height; y += 2) {
+            for (let x = 0; x < dataGaris.width; x += 2) {
+                if (dataGaris.data[(y * 4 * dataGaris.width) + (x * 4) + 3] > 128) {
+                    particleArray.push(new TitikPartikel(x, y));
                 }
             }
         }
+    }
+}
 
         function loopAnimasi() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            for (let i = 0; i < particleArray.length; i++) {
-                particleArray[i].draw();
-                particleArray[i].update();
-            }
-            requestAnimationFrame(loopAnimasi);
-        }
+    // Memberikan efek background semi-transparan tipis untuk menciptakan jejak gerakan (smooth trail)
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    for (let i = 0; i < particleArray.length; i++) {
+        particleArray[i].draw();
+        particleArray[i].update();
+    }
+    requestAnimationFrame(loopAnimasi);
+}
 
         /* --- PHOTOBOOTH LOGIC CONTROLLER --- */
         let streamActive = null;
